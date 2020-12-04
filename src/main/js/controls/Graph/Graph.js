@@ -191,6 +191,9 @@ const init = (control) => {
     return control;
 };
 
+let totalResizeTime = 0;
+let totalLoadContentTime =0;
+
 /**
  * A common API used to plot everything except the datapoints and legend themselves.
  * * Axes - X, Y and optional Y2 axis
@@ -320,10 +323,17 @@ class Graph extends Construct {
      *  @returns {Graph} - Graph instance
      */
     resize() {
+        const startTime = new Date().getTime();
         setCanvasWidth(this.graphContainer, this.config);
         scaleGraph(this.scale, this.config);
         translateGraph(this);
         this.content.forEach((control) => control.resize(this));
+
+        const thisRun = new Date().getTime() - startTime;
+        console.log(`resize: ${thisRun}ms`);
+        totalResizeTime += thisRun;
+        console.log(`total resizeTime: ${totalResizeTime}ms`);
+
         return this;
     }
 
@@ -336,6 +346,7 @@ class Graph extends Construct {
      * @returns {Graph} - Graph instance
      */
     loadContent(content) {
+        const startTime = new Date().getTime();
         validateContent(this.content, content);
         this.content.push(content);
         this.contentConfig.push(content.config);
@@ -370,6 +381,12 @@ class Graph extends Construct {
             removeNoDataView(this.svg);
         }
         this.resize();
+
+        const thisRun = new Date().getTime() - startTime;
+        console.log(`loadContent: ${thisRun}ms`);
+        totalLoadContentTime += thisRun;
+        console.log(`total LoadContentTime: ${totalLoadContentTime}ms`);
+
         return this;
     }
 
